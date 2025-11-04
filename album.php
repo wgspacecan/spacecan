@@ -59,7 +59,7 @@ while ($img = $res->fetch_assoc()) {
 </head>
 <body>
   <div class="container">
-    <a href="index.php" style="font-size:1rem;color:#666;text-decoration:none;">All Albums</a>
+    <a href="index.php" class="back-link">All Albums</a>
     <h1><?= htmlspecialchars($name) ?></h1>
     <div class="gallery">
       <?php foreach ($images as $i):

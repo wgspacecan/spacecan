@@ -17,7 +17,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Photo Albums <a href="admin.php" style="float:right;font-size:1rem;color:#666;text-decoration:none;">Admin</a></h1>
+    <h1>Photo Albums <a class='back_button' href="admin.php" ">Admin</a></h1>
     <div class="album-grid">
     <?php
       $res = $mysqli->query("SELECT id, name, slug, thumbnail FROM albums WHERE is_public = 1 ORDER BY name");

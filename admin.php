@@ -229,21 +229,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="icon" href="assets/favicon.ico">
   <title>SpaceCan Admin</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .dropzone { border: 2px dashed #ccc; padding: 2rem; text-align: center; margin: 1rem 0; }
-    .dropzone.dragover { background: #eef; border-color: #0066cc; }
-    .thumb { width: 80px; height: 80px; object-fit: cover; margin: 0.2rem; vertical-align: top; }
-    .img-row { display: inline-block; position: relative; }
-    .img-row button { position: absolute; top: 2px; right: 2px; background: red; color: white; border: none; font-size: 0.8rem; cursor: pointer; }
-    details { scroll-margin-top: 100px; }
-  </style>
 </head>
 <body>
 <div class="container">
   <h1>Admin 
-    <a href="index.php" style="float:right;font-size:1rem;margin-left:15px;color:#666;text-decoration:none;">Home</a>
-    <a href="?logout=1" style="float:right;font-size:1rem;margin-left:15px;color:#666;text-decoration:none;">Logout</a>
-    <a href="password.php" style="float:right;font-size:1rem;color:#666;text-decoration:none;">Password</a>
+    <div class="admin-nav">
+      <a href="index.php">Home</a>
+      <a href="?logout=1">Logout</a>
+      <a href="password.php">Password</a>
+    </div>
   </h1>
 
   <?php if (isset($_SESSION['msg'])) echo "<p>" . htmlspecialchars($_SESSION['msg'], ENT_QUOTES, 'UTF-8') . "</p>"; $_SESSION['msg'] = ''?>
@@ -291,33 +285,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         (<?= $album['is_public'] ? 'Public' : 'Unlisted' ?>)
         — <a href="<?= BASE_URL ?>/<?= $link ?>" target="_blank">View</a>
         —
-        <form method="post" style="display:inline;" onsubmit="return confirm('Delete album and all images?')">
+        <form method="post" class="inline-form" onsubmit="return confirm('Delete album and all images?')">
           <input type="hidden" name="action" value="delete_album">
           <input type="hidden" name="id" value="<?= $album['id'] ?>">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-          <button type="submit" style="background:none;border:none;color:blue;text-decoration:underline;cursor:pointer;padding:0;">
-            Delete
-          </button>
+          <button type="submit">Delete</button>
         </form>
       </summary>
       <div class="dropzone" id="drop-<?= $album['id'] ?>">Drag & drop JPGs here</div>
-      <form method="post">
-        <input type="hidden" name="action" value="update_thumbnail">
-        <input type="hidden" name="id" value="<?= $album['id'] ?>">
-        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="text" name="thumbnail" placeholder="Thumbnail" required>
-        <button type="submit" style="cursor:pointer;">Update</button>
-        <span style="color:#555; font-size:0.9rem; white-space:nowrap;">
-          Current: <?= $current_index ?>
-        </span>
-      </form>
-      <form method="post">
-        <input type="hidden" name="action" value="update_public">
-        <input type="hidden" name="id" value="<?= $album['id'] ?>">
-        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="checkbox" name="state" <?= $album['is_public'] ? 'checked' : '' ?>> Public
-        <button type="submit" style="cursor:pointer;">Update</button>
-      </form>
+        <form method="post" class="update-form">
+          <input type="hidden" name="action" value="update_thumbnail">
+          <input type="hidden" name="id" value="<?= $album['id'] ?>">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="text" name="thumbnail" placeholder="Thumbnail" required>
+          <button type="submit">Update</button>
+          <span class="current-index">Current: <?= $current_index ?></span>
+        </form>
+
+        <form method="post" class="public-form">
+          <input type="hidden" name="action" value="update_public">
+          <input type="hidden" name="id" value="<?= $album['id'] ?>">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="checkbox" name="state" <?= $album['is_public'] ? 'checked' : '' ?>> Public
+          <button type="submit">Update</button>
+        </form>
       <div>
         <?php
         $stmt = $mysqli->prepare("SELECT id, filename FROM images WHERE album_id = ? ORDER BY id ASC");
@@ -329,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $thumb = BASE_URL . "/images/thumbnails/$slug/{$img['filename']}";
         ?>
           <span class="img-row">
-            <img src="<?= $thumb ?>" class="thumb" alt="">
+            <img src="<?= $thumb ?>" class="admin-thumb" alt="">
             <button type="button" onclick="delImg(<?= $img['id'] ?>, <?= $album['id'] ?>)">×</button>
             <p><?= $i; $i++; ?></p>
           </span>

@@ -63,30 +63,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Change Password</title>
-  <style>
-    body { font-family: Arial; max-width: 500px; margin: 2rem auto; padding: 1rem; }
-    .form-group { margin: 1rem 0; }
-    label { display: block; margin-bottom: .3rem; }
-    input[type=password] { width: 100%; padding: .5rem; font-size: 1rem; }
-    button { padding: .7rem 1.5rem; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .msg { padding: .5rem; margin: 1rem 0; border-radius: 4px; }
-    .success { background: #d4edda; color: #155724; }
-    .error { background: #f8d7da; color: #721c24; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="icon" href="assets/favicon.ico">
+    <title>Change Password</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="auth-container">
   <h1>Change Admin Password</h1>
 
   <?php if ($success): ?>
-    <div class="msg success"><?= htmlspecialchars($success) ?></div>
+    <div class="auth-msg auth-success"><?= htmlspecialchars($success) ?></div>
   <?php endif; ?>
   <?php if ($error): ?>
-    <div class="msg error"><?= htmlspecialchars($error) ?></div>
+    <div class="auth-msg auth-error"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
 
-  <form method="POST">
+  <form method="POST" class="auth-form">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="form-group">
@@ -106,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <button type="submit">Update Password</button>
   </form>
-
-  <p><a href="admin.php">Back to Admin</a></p>
+    <br>
+  <p><a href="admin.php" class="home-link">Back to Admin</a></p>
+</div>
 </body>
 </html>

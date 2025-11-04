@@ -112,49 +112,100 @@ function formatBytes($bytes) {
   <title>SpaceCan <?= htmlspecialchars($img['title'] ?: $img['filename']) ?></title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { margin:0; font-family:Arial; background:#f4f4f4; }
-    .container { max-width:1200px; margin:2rem auto; padding:1rem; background:white; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-    .image-container { text-align:center; position:relative; margin-bottom:1rem; }
-    .image-container img { max-width:100%; max-height:70vh; border:2px solid #ddd; }
-    .metadata { margin:1rem 0; padding:1rem; background:#f9f9f9; border:1px solid #eee; line-height:1.6; }
-    .actions { text-align:center; margin:1rem 0; }
-    .actions a { display:inline-block; padding:0.7rem 1.5rem; background:#0066cc; color:white; text-decoration:none; border-radius:4px; }
-    .back { display:block; margin-top:1rem; color:#666; }
-    .nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      width: 50px;
-      height: 50px;
-      font-size: 2rem;
-      cursor: pointer;
-      border-radius: 50%;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .prev-btn { left: 10px; }
-    .next-btn { right: 10px; }
+  /* === Layout === */
+  body { margin: 0; font-family: Arial; background: #f4f4f4; }
+  .container {
+    max-width: 1400px;
+    margin: 1rem auto;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
 
-    .image-container {
-      flex: 2;
-      min-width: 300px;
-      height: 70vh;
-      position: relative;
-      overflow: hidden; /* ← KEY */
-      width: 100%;
-      max-width: 100%;
-    }
-    #openseadragon {
-      width: 100% !important;
-      height: 100% !important;
-    }
+  /* === Image Container === */
+  .image-container {
+    flex: 2;
+    min-width: 400px;
+    height: 70vh;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+  #openseadragon {
+    width: 100% !important;
+    height: 100% !important;
+    background: #000;
+  }
 
-    @media (max-width: 768px) {
+  /* === Sidebar === */
+  .sidebar {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  /* === Metadata === */
+  .metadata {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    line-height: 1.6;
+    font-size: 0.9rem;
+  }
+
+  /* === Actions === */
+  .actions {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .actions button {
+    padding: 0.7rem 1.5rem;
+    background: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  /* === Back Links === */
+  .back-links {
+    text-align: center;
+  }
+  .back-links a {
+    color: #666;
+    text-decoration: none;
+    margin: 0 7.5px;
+  }
+
+  /* === Navigation Buttons === */
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .prev-btn { left: 10px; }
+  .next-btn { right: 10px; }
+
+  /* === Responsive === */
+  @media (max-width: 768px) {
     .image-container {
       flex: 1 1 100% !important;
       min-width: 100% !important;
@@ -172,11 +223,11 @@ function formatBytes($bytes) {
 </head>
 <body>
   
-<div class="container" style="max-width:1400px; margin:1rem auto; padding:1rem; background:white; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
+<div class="container">
   
   <!-- Image: 70% -->
-  <div class="image-container" style="flex:2; min-width:400px; height:70vh; position:relative;">
-    <div id="openseadragon" style="width:100%; height:100%; background:#000;"></div>
+  <div class="image-container">
+    <div id="openseadragon"></div>
 
     <?php if ($prev): ?>
       <a href="view.php?slug=<?= $slug ?>&id=<?= $prev ?>" class="nav-btn prev-btn">←</a>
@@ -186,11 +237,11 @@ function formatBytes($bytes) {
     <?php endif; ?>
   </div>
 
-  <!-- Sidebar: 30% (Metadata + Actions) -->
-  <div class="sidebar" style="flex:1; min-width:280px;">
+  <!-- Sidebar: 30% -->
+  <div class="sidebar">
     
     <!-- Metadata -->
-    <div class="metadata" style="margin-bottom:1rem; padding:1rem; background:#f9f9f9; border:1px solid #eee; line-height:1.6; font-size:0.9rem;">
+    <div class="metadata">
       <strong>Title:</strong> <?= htmlspecialchars($img['title'] ?: pathinfo($img['filename'], PATHINFO_FILENAME)) ?><br>
       <strong>Size:</strong> <?= formatBytes($size) ?><br>
       <?php if ($camera !== 'Unknown'): ?><strong>Camera:</strong> <?= htmlspecialchars($camera) ?><br><?php endif; ?>
@@ -200,24 +251,21 @@ function formatBytes($bytes) {
     </div>
 
     <!-- Actions -->
-    <div class="actions" style="text-align:center; margin-bottom:1rem;">
-      <form method="POST" action="/download.php" style="display:inline;">
-          <input type="hidden" name="type" value="info">
-          <input type="hidden" name="action" value="download">
-          <input type="hidden" name="image" value="<?= $img['filename'] ?>">
-          <input type="hidden" name="album" value="<?= $img['slug'] ?>">
-          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-          <button type="submit" 
-                  style="padding:0.7rem 1.5rem; background:#0066cc; color:white; border:none; border-radius:4px; cursor:pointer; font-size:1rem;">
-              Download
-          </button>
+    <div class="actions">
+      <form method="POST" action="/download.php">
+        <input type="hidden" name="type" value="info">
+        <input type="hidden" name="action" value="download">
+        <input type="hidden" name="image" value="<?= $img['filename'] ?>">
+        <input type="hidden" name="album" value="<?= $img['slug'] ?>">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+        <button type="submit">Download</button>
       </form>
     </div>
 
-    <!-- Back Link -->
-    <div style="text-align:center;">
-      <a href="album.php?s=<?= $img['slug'] ?>" style="color:#666;text-decoration:none;">Album</a>
-      <a href="index.php" style="margin-left:15px;color:#666;text-decoration:none;">Home</a>
+    <!-- Back Links -->
+    <div class="back-links">
+      <a href="album.php?s=<?= $img['slug'] ?>">Album</a>
+      <a href="index.php">Home</a>
     </div>
   </div>
 </div>

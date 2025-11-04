@@ -93,6 +93,11 @@ CREATE TABLE admins (
 
 CREATE USER 'imguser'@'localhost' IDENTIFIED BY 'your_secure_pass';
 GRANT ALL ON image_viewer.* TO 'imguser'@'localhost';
+
+INSERT INTO admins (username, password) VALUES (
+    'admin',
+    '$2y$12$uQ8FUmofT4x6yhrprrXEu.mF9iOAhsLIHvrHoUk7/pOfInhvWg7gK'
+);
 ```
 
 ### 4. Install Dependencies
