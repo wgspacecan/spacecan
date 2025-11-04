@@ -176,6 +176,27 @@ server {
 
 ---
 
+## Log Rotation
+
+Logs are rotated automatically using `logrotate`.
+
+### Config: `/etc/logrotate.d/myapp`
+
+```bash
+/srv/spacecan/logs/access.log {
+    size 100M
+    rotate 7
+    missingok
+    notifempty
+    create 0640 http http
+    su http http
+    sharedscripts
+    postrotate
+        systemctl reload php-fpm >/dev/null 2>&1 || true
+    endscript
+}
+```
+
 ## Security
 
 - HTTPS enforced
