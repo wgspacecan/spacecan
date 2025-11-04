@@ -26,7 +26,7 @@ if (!isset($_SESSION['admin'])) {
       $stmt->execute();
       $data = $stmt->get_result()->fetch_assoc();
       if ($data && password_verify($password, $data['password'])) {
-        $_SESSION['admin'] = 1; // Logged in
+        $_SESSION['admin'] = $data['id']; // Logged in
         logEvent('auth', 'admin', 'Login', ['admin_id' => $data['id']]);
         // Regenerate CSRF
         unset($_SESSION['csrf_token']);
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="robots" content="noindex,nofollow">
-  <link rel="icon" href="favicon.ico">
+  <link rel="icon" href="assets/favicon.ico">
   <title>SpaceCan Admin</title>
   <link rel="stylesheet" href="style.css">
   <style>
@@ -242,7 +242,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container">
   <h1>Admin 
     <a href="index.php" style="float:right;font-size:1rem;margin-left:15px;color:#666;text-decoration:none;">Home</a>
-    <a href="?logout=1" style="float:right;font-size:1rem;color:#666;text-decoration:none;">Logout</a>
+    <a href="?logout=1" style="float:right;font-size:1rem;margin-left:15px;color:#666;text-decoration:none;">Logout</a>
+    <a href="password.php" style="float:right;font-size:1rem;color:#666;text-decoration:none;">Password</a>
   </h1>
 
   <?php if (isset($_SESSION['msg'])) echo "<p>" . htmlspecialchars($_SESSION['msg'], ENT_QUOTES, 'UTF-8') . "</p>"; $_SESSION['msg'] = ''?>

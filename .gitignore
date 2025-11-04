@@ -1,3 +1,5 @@
 .env
-/logs/
-/images/
+/logs/*
+/images/public/*
+/images/thumbnails/*
+/assets/*

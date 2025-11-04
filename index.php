@@ -11,7 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="robots" content="noindex,nofollow">
-  <link rel="icon" href="favicon.ico">
+  <link rel="icon" href="assets/favicon.ico">
   <title>SpaceCan</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -54,7 +54,7 @@
           }
 
           echo "<a href='album.php?s={$row['slug']}' class='album-card'>
-                  <img src='$thumb_url' loading='lazy' onerror=\"this.src='placeholder.JPG'\">
+                  <img src='$thumb_url' loading='lazy' onerror=\"this.src='assets/placeholder.JPG'\">
                   <span>" . htmlspecialchars($row['name']) . "</span>
                 </a>";
       }
