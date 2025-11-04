@@ -1,0 +1,65 @@
+<?php
+  require 'config.php';
+  
+  // Log view
+  logEvent('view', 'home');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="favicon.ico">
+  <title>SpaceCan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Photo Albums <a href="admin.php" style="float:right;font-size:1rem;color:#666;text-decoration:none;">Admin</a></h1>
+    <div class="album-grid">
+    <?php
+      $res = $mysqli->query("SELECT id, name, slug, thumbnail FROM albums WHERE is_public = 1 ORDER BY name");
+      while ($row = $res->fetch_assoc()) {
+          $album_id = $row['id'];
+          $slug = sanitize_path($row['slug']);
+          $thumbnail_id = (int)$row['thumbnail'];
+
+          // === Get thumbnail from DB by ID ===
+          $thumb_url = '';
+          if ($thumbnail_id > 0) {
+              $stmt = $mysqli->prepare("SELECT filename FROM images WHERE id = ? AND album_id = ?");
+              $stmt->bind_param("ii", $thumbnail_id, $album_id);
+              $stmt->execute();
+              $img = $stmt->get_result()->fetch_assoc();
+              $stmt->close();
+
+              if ($img) {
+                  $thumb_url = BASE_URL . '/images/thumbnails/' . $slug . '/' . $img['filename'];
+              }
+          }
+
+          // === Fallback: first image by DB order ===
+          if (!$thumb_url) {
+              $stmt = $mysqli->prepare("SELECT filename FROM images WHERE album_id = ? ORDER BY id ASC LIMIT 1");
+              $stmt->bind_param("i", $album_id);
+              $stmt->execute();
+              $img = $stmt->get_result()->fetch_assoc();
+              $stmt->close();
+
+              if ($img) {
+                  $thumb_url = BASE_URL . '/images/thumbnails/' . $slug . '/' . $img['filename'];
+              }
+          }
+
+          echo "<a href='album.php?s={$row['slug']}' class='album-card'>
+                  <img src='$thumb_url' loading='lazy' onerror=\"this.src='placeholder.JPG'\">
+                  <span>" . htmlspecialchars($row['name']) . "</span>
+                </a>";
+      }
+      ?>
+    </div>
+  </div>
+</body>
+</html>
