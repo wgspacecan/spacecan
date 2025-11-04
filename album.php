@@ -21,7 +21,7 @@ if ($slug !== '') {
 }
 
 // Validate album
-$stmt = $mysqli->prepare("SELECT id, name, is_public, slug FROM albums WHERE slug = ? OR uuid = ?");
+$stmt = $mysqli->prepare("SELECT id, name, is_public, slug, author FROM albums WHERE slug = ? OR uuid = ?");
 $stmt->bind_param('ss', $slug, $uuid);
 $stmt->execute();
 $album = $stmt->get_result()->fetch_assoc();
@@ -30,6 +30,7 @@ if (!$album) die('Album not found');
 $album_id = $album['id'];
 $name = $album['name'];
 $slug = sanitize_path($album['slug']);
+$author = $album['author'];
 
 // Log view
 logEvent('view', 'album', 'path:' . $slug, ['id' => $album_id]);
@@ -59,8 +60,15 @@ while ($img = $res->fetch_assoc()) {
 </head>
 <body>
   <div class="container">
-    <a href="index.php" class="back-link">All Albums</a>
-    <h1><?= htmlspecialchars($name) ?></h1>
+    <div class="album-header">
+      <h1>
+        <?= htmlspecialchars($name) ?>
+        <a href="index.php" class="back-link">All Albums</a>
+      </h1>
+      <?php if (!empty($author)): ?>
+        <p class="author"><strong>Author:</strong> <?= htmlspecialchars($author) ?></p>
+      <?php endif; ?>
+    </div>
     <div class="gallery">
       <?php foreach ($images as $i):
         $public = $i['public'];

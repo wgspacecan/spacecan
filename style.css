@@ -20,6 +20,24 @@ h1 { margin-bottom:1.5rem; font-size:1.8rem; }
   font-size: 1rem;
   color: #666;
   text-decoration: none;
+  float: right;
+}
+
+.album-header {
+  margin-bottom: 2rem;
+}
+
+.album-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  color: #222;
+}
+
+.album-header .author {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+  font-style: italic;
 }
 
 /* === INDEX === */

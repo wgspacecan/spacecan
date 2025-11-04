@@ -208,6 +208,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $open_id = $id;
   }
 
+  if ($action === 'update_author' && $id > 0) {
+    $author = $_POST['author'] ?? '';
+    $author = $author === '' ? null : $author;
+
+    $stmt = $mysqli->prepare("UPDATE albums SET author = ? WHERE id = ?");
+    $stmt->bind_param("si", $author, $id);
+    $stmt->execute();
+    $stmt->close();
+
+    logEvent('info', 'update', 'Album author updated', ['album_id' => $id, 'author' => $author]);
+    $_SESSION['msg'] = "Album author updated";
+    $open_id = $id;
+  }
+
   // Regenerate CSRF
   unset($_SESSION['csrf_token']);
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -260,6 +274,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $link = $album['is_public'] ? "album.php?s=$slug" : "album.php?u={$album['uuid']}";
     $is_open = ($open_id === (int)$album['id']) ? ' open' : '';
     $thumbnail_id = (int)$album['thumbnail'];
+    
+    $author = $album['author'];
+
+    $current_author = 'none';
+    if (!empty($author)) {
+        $current_author = $author;
+    }
 
     // Get index of thumbnail_id
     $current_index = 'none';
@@ -293,6 +314,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
       </summary>
       <div class="dropzone" id="drop-<?= $album['id'] ?>">Drag & drop JPGs here</div>
+        <form method="post" class="public-form">
+          <input type="hidden" name="action" value="update_public">
+          <input type="hidden" name="id" value="<?= $album['id'] ?>">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="checkbox" name="state" <?= $album['is_public'] ? 'checked' : '' ?>> Public
+          <button type="submit">Update</button>
+        </form>
         <form method="post" class="update-form">
           <input type="hidden" name="action" value="update_thumbnail">
           <input type="hidden" name="id" value="<?= $album['id'] ?>">
@@ -301,13 +329,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <button type="submit">Update</button>
           <span class="current-index">Current: <?= $current_index ?></span>
         </form>
-
         <form method="post" class="public-form">
-          <input type="hidden" name="action" value="update_public">
+          <input type="hidden" name="action" value="update_author">
           <input type="hidden" name="id" value="<?= $album['id'] ?>">
           <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-          <input type="checkbox" name="state" <?= $album['is_public'] ? 'checked' : '' ?>> Public
+          <input type="text" name="author" placeholder="Author">
           <button type="submit">Update</button>
+          <span class="current-index">Current: <?= $current_author ?></span>
         </form>
       <div>
         <?php
