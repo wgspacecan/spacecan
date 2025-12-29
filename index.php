@@ -53,9 +53,11 @@
               }
           }
 
-          echo "<a href='album.php?s={$row['slug']}' class='album-card'>
-                  <img src='$thumb_url' loading='lazy' onerror=\"this.src='assets/placeholder.JPG'\">
-                  <span>" . htmlspecialchars($row['name']) . "</span>
+          $safe_slug = htmlspecialchars($row['slug'], ENT_QUOTES, 'UTF-8');
+          $safe_thumb = htmlspecialchars($thumb_url, ENT_QUOTES, 'UTF-8');
+          echo "<a href='album.php?s={$safe_slug}' class='album-card'>
+                  <img src='{$safe_thumb}' loading='lazy' onerror=\"this.src='assets/placeholder.JPG'\">
+                  <span>" . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "</span>
                 </a>";
       }
       ?>

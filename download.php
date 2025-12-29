@@ -1,17 +1,37 @@
 <?php
-session_start();
 require_once 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'download') {
 
     $type = $_POST['type'] ?? '';
-    $filename = ($_POST['image'] ?? 0);
-    $slug = ($_POST['album'] ?? 0);
+    $filename = basename($_POST['image'] ?? '');  // Sanitize: strip path components
+    $slug = basename($_POST['album'] ?? '');      // Sanitize: strip path components
 
     // CSRF check
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
         http_response_code(403);
         exit('Invalid CSRF');
+    }
+
+    // Validate inputs
+    if (empty($filename) || empty($slug)) {
+        http_response_code(400);
+        exit('Bad Request');
+    }
+
+    // Build and validate file path
+    $file_path = PUBLIC_ROOT . "/$slug/$filename";
+    $real_path = realpath($file_path);
+    $allowed_dir = realpath(PUBLIC_ROOT);
+
+    // Security: Ensure file is within allowed directory
+    if (!$real_path || !$allowed_dir || strpos($real_path, $allowed_dir) !== 0) {
+        logEvent('alert', 'download', 'Path traversal attempt', [
+            'filename' => $filename,
+            'slug' => $slug
+        ]);
+        http_response_code(404);
+        exit('Not Found');
     }
 
     // Log via logEvent()
@@ -21,17 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'downl
     ]);
 
     // --- SERVE FILE ---
-    $file_path = PUBLIC_ROOT . "/$slug/$filename";
-    $filename = basename($file_path);
-    $mime = mime_content_type($file_path) ?: 'application/octet-stream';
+    $mime = mime_content_type($real_path) ?: 'application/octet-stream';
 
     header('Content-Type: ' . $mime);
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-    header('Content-Length: ' . filesize($file_path));
+    header('Content-Length: ' . filesize($real_path));
     header('Cache-Control: no-store, no-cache');
     header('Pragma: no-cache');
 
-    readfile($file_path);
+    readfile($real_path);
     exit;
 } else {
     logEvent('alert', 'download', 'Invalid access', ['method' => $_SERVER['REQUEST_METHOD'] ?? '']);

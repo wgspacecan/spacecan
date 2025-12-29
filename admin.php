@@ -1,5 +1,4 @@
 <?php
-session_start();
 require 'config.php';
 
 // === LOGOUT ===
@@ -17,8 +16,14 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // === AUTH ===
 if (!isset($_SESSION['admin'])) {
+  $clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+    // Check rate limiting first
+    if (isLoginLocked($clientIP)) {
+      logEvent('auth', 'admin', 'Login blocked - rate limited', ['ip' => $clientIP]);
+      $_SESSION['login_error'] = "Too many failed attempts. Try again in 15 minutes.";
+    } elseif (hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
       $username = 'admin';
       $password = $_POST['pass'] ?? '';
       $stmt = $mysqli->prepare("SELECT id, password FROM admins WHERE username = ?");
@@ -26,6 +31,8 @@ if (!isset($_SESSION['admin'])) {
       $stmt->execute();
       $data = $stmt->get_result()->fetch_assoc();
       if ($data && password_verify($password, $data['password'])) {
+        clearLoginAttempts($clientIP); // Clear rate limit on success
+        session_regenerate_id(true); // Prevent session fixation
         $_SESSION['admin'] = $data['id']; // Logged in
         logEvent('auth', 'admin', 'Login', ['admin_id' => $data['id']]);
         // Regenerate CSRF
@@ -35,10 +42,12 @@ if (!isset($_SESSION['admin'])) {
         header('Location: admin.php');
         exit;
       } else {
+        recordFailedLogin($clientIP); // Record failed attempt
         logEvent('auth', 'admin', 'Failed login attempt', ['username' => $username]);
         $_SESSION['login_error'] = "Invalid credentials";
       }
     } else {
+      recordFailedLogin($clientIP); // CSRF failures count too
       logEvent('auth', 'admin', 'Failed login attempt - invalid CSRF');
       $_SESSION['login_error'] = "Invalid CSRF token";
     }
@@ -249,8 +258,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h1>Admin 
     <div class="admin-nav">
       <a href="index.php">Home</a>
-      <a href="?logout=1">Logout</a>
+      <a href="audit.php">Audit Log</a>
       <a href="password.php">Password</a>
+      <a href="?logout=1">Logout</a>
     </div>
   </h1>
 
